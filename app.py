@@ -3,7 +3,7 @@ import os
 
 from flask import Flask, request, redirect, make_response, render_template, url_for
 from flask_script import Manager
-import api
+from api import *
 
 #-Flask-App-Setup------------------------------------------#
 app = Flask(__name__)
@@ -18,6 +18,16 @@ def index():
 def register():
     # request.form
     return "<p>Register Page</p>"
+
+@app.route('/post/create')
+def create_post():
+    data = {
+        "title": "Post",
+        "body": "Hello, world!",
+        "img": None
+    }
+    print(API_create_post(data)['code'])
+    return '<p>Post created!</p>'
 
 #-Running-the-server---------------------------------------#
 if __name__ == '__main__':
