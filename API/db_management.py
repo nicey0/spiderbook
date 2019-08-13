@@ -25,9 +25,12 @@ def new_pid(conn, c):
 def create_post(conn, c, data):
     c.execute("INSERT INTO posts (pid, title, body, img) VALUES (%s, %s, %s)", tuple(
         data.values()))
+    conn.commit()
+    return {"code": "success!"}
 
 @use_db
 def get_posts(conn, c, limit):
     c.execute("SELECT * FROM posts ORDER BY pid LIMIT %s", (limit,))
     response = c.fetchall()
+    print(response)
     return response
