@@ -3,8 +3,7 @@ import os
 
 from flask import Flask, request, redirect, make_response, render_template, url_for
 from flask_script import Manager
-
-import requests
+import api
 
 #-Functions------------------------------------------------#\
 def removeLast(s):
