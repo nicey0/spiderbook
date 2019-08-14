@@ -34,11 +34,13 @@ def create_post():
     if request.method == 'POST':
         data = dict(request.form)
         image = request.files.get('img')
+        imageURL = 'images/'+image.filename
+        image.save(imageURL)
 
         if not data.get('body'): data['body'] = None
         if not image: data['img'] = None
 
-        data['img'] = image.read()    
+        data['img'] = imageURL
         data['author'] = 'Anon'
 
         code = API_create_post(data)['code']
