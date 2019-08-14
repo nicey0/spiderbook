@@ -33,9 +33,8 @@ def API_create_post(arguments):
         pid = (new_pid({}),)
         ex_data = (datetime.datetime.now(),)
         arguments['c'].execute (
-            "INSERT INTO posts (pid, title, body, img, author, curtime)\
-            VALUES (%s,%s,%s,%s,%s,%s)", pid + tuple( dict(arguments['data']).values() ) + ex_data
-        )
+        "INSERT INTO posts (pid, title, body, img, author, curtime) VALUES (%s,%s,%s,%s,%s,%s)",
+            pid + tuple(dict(arguments['data']).values()) + ex_data)
         arguments['conn'].commit()
         return {"code": "success!"}
     except Exception as e:
@@ -45,7 +44,7 @@ def API_create_post(arguments):
 @use_db
 def API_get_posts(arguments):
     limit = arguments['data']['limit']
-    arguments['c'].execute("SELECT * FROM posts ORDER BY pid LIMIT %s", (limit,))
+    arguments['c'].execute("SELECT * FROM posts LIMIT %s", (limit,))
     response = arguments['c'].fetchall()
     print(response)
     return response

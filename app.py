@@ -9,6 +9,10 @@ from api import *
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ['SECRET']
 
+def write_file(bcontent):
+    with open('hello.jpg', 'wb') as file:
+        file.write(bcontent)
+
 #-View-Functions-------------------------------------------#
 '''
 Notes:
@@ -29,15 +33,19 @@ def register():
 def create_post():
     if request.method == 'POST':
         data = dict(request.form)
-        if len(data) != 3:
-            if not data.get('body'): data['body'] = None
-            if not data.get('img'): data['img'] = None
-        data['author'] = 'Anonymous'
+        image = request.files.get('img')
+
+        if not data.get('body'): data['body'] = None
+        if not image: data['img'] = None
+
+        data['img'] = image.read()    
+        data['author'] = 'Anon'
+
         code = API_create_post(data)['code']
-        if code == 'success':
+        if code == 'success!':
             return '<h2>Post created!</h2>'
         else:
-            return '<h2>Error: {code}</h2>'
+            return f'<h2>Error: {code}</h2>'
     return render_template('create_post.html')
 
 #-Running-the-server---------------------------------------#
