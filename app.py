@@ -1,35 +1,25 @@
 #-Imports--------------------------------------------------#
-import os
+import os, time
 
 from flask import Flask, request, redirect, make_response, render_template, url_for
 from flask_script import Manager
-
-import requests
-
-#-Functions------------------------------------------------#\
-def removeLast(s):
-    sl = list(s)
-    sl.pop()
-    return ''.join(sl)
-
-def APIcall(payload, path, method='get'):
-    if method.lower() == "get":
-        uri = "http://localhost:5000" + path + '?'
-        for (k,v) in payload.items(): uri += str(k)+'='+str(v)+'&'
-        uri = removeLast(uri)
-        print(f"GET {uri}")
-        response = requests.get(uri)
-    else:
-        uri = "http://localhost:5000" + path
-        print(f"POST {uri} PAYLOAD: {payload}")
-        response = requests.post(uri, json=payload)
-    return response
+from api import *
 
 #-Flask-App-Setup------------------------------------------#
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ['SECRET']
 
+def write_file(bcontent):
+    with open('hello.jpg', 'wb') as file:
+        file.write(bcontent)
+
 #-View-Functions-------------------------------------------#
+'''
+Notes:
+Get form data: request.form
+Get URI arguments: request.args.get('ARGUMENT_NAME')
+Get POST body JSON: request.data
+'''
 @app.route('/')
 def index():
     return "<p>Index</p>"
@@ -38,6 +28,27 @@ def index():
 def register():
     # request.form
     return "<p>Register Page</p>"
+
+@app.route('/post/create', methods=['GET', 'POST'])
+def create_post():
+    if request.method == 'POST':
+        data = dict(request.form)
+        image = request.files.get('img')
+        imageURL = 'images/'+image.filename
+        image.save(imageURL)
+
+        if not data.get('body'): data['body'] = None
+        if not image: data['img'] = None
+
+        data['img'] = imageURL
+        data['author'] = 'Anon'
+
+        code = API_create_post(data)['code']
+        if code == 'success!':
+            return '<h2>Post created!</h2>'
+        else:
+            return f'<h2>Error: {code}</h2>'
+    return render_template('create_post.html')
 
 #-Running-the-server---------------------------------------#
 if __name__ == '__main__':

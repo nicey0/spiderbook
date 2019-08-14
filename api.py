@@ -1,30 +1,50 @@
 #-Imports--------------------------------------------------#
-import os
+import os, psycopg2, random, hashlib, time, datetime
 
-from flask import Flask, request, redirect, make_response, render_template, url_for, jsonify
-from flask_script import Manager
+#-Database-connector---------------------------------------#
+def use_db(func):
+    def user(data):
+        arguments = {}
+        arguments['conn'] = psycopg2.connect(
+            "dbname=spiderbook user=postgres password=postgres"
+        )
+        arguments['c'] = arguments['conn'].cursor()
+        arguments['data'] = data
+        return func(arguments)
+        arguments['conn'].close()
+    return user
 
-from API.db_management import create_post, get_posts
+#-Functions------------------------------------------------#
+@use_db
+def new_pid(arguments):
+    arguments['c'].execute("SELECT * FROM post_ids ORDER BY curr_num DESC LIMIT 1")
+    latest_id = arguments['c'].fetchone()[0]
 
-#-Flask-setup----------------------------------------------#
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ['SECRET']
+    new_id = latest_id + random.randint(1, 9)
+    arguments['c'].execute(f"INSERT INTO post_ids VALUES ({new_id})")
+    arguments['conn'].commit()
 
-#-View-functions-------------------------------------------#
-@app.route('/a', methods=['GET', 'POST'])
-def index():
-    if request.method == 'GET':
-        print(request.args)
-        print('Method: GET')
-    else:
-        print(request.data)
-        print('Method: POST')
-    return jsonify("a")
+    return hashlib.sha1(bytes(new_id)).hexdigest()
 
-#-Running-the-server---------------------------------------#
-if __name__ == '__main__':
-    app.run (
-        host="localhost",
-        port=5000,
-        debug=True
-    )
+
+@use_db
+def API_create_post(arguments):
+    try:
+        pid = (new_pid({}),)
+        ex_data = (datetime.datetime.now(),)
+        arguments['c'].execute (
+        "INSERT INTO posts (pid, title, body, img, author, curtime) VALUES (%s,%s,%s,%s,%s,%s)",
+            pid + tuple(dict(arguments['data']).values()) + ex_data)
+        arguments['conn'].commit()
+        return {"code": "success!"}
+    except Exception as e:
+        return {"code": str(e)}
+
+
+@use_db
+def API_get_posts(arguments):
+    limit = arguments['data']['limit']
+    arguments['c'].execute("SELECT * FROM posts LIMIT %s", (limit,))
+    response = arguments['c'].fetchall()
+    print(response)
+    return response
