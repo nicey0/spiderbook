@@ -27,21 +27,18 @@ def register():
 
 @app.route('/post/create', methods=['GET', 'POST'])
 def create_post():
-    """ data = {
-        "title": "Post",
-        "body": "Hello, world!",
-        "img": None
-    } """
-    if request.method == 'GET':
-        return render_template('create_post.html')
-    elif request.method == 'POST':
+    if request.method == 'POST':
         data = dict(request.form)
         if len(data) != 3:
             if not data.get('body'): data['body'] = None
             if not data.get('img'): data['img'] = None
         data['author'] = 'Anonymous'
-        API_create_post(data)['code']
-        return '<p>Post created!</p>'
+        code = API_create_post(data)['code']
+        if code == 'success':
+            return '<h2>Post created!</h2>'
+        else:
+            return '<h2>Error: {code}</h2>'
+    return render_template('create_post.html')
 
 #-Running-the-server---------------------------------------#
 if __name__ == '__main__':
