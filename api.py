@@ -1,5 +1,5 @@
 #-Imports--------------------------------------------------#
-import os, psycopg2, random, hashlib, time
+import os, psycopg2, random, hashlib, time, datetime
 
 #-Database-connector---------------------------------------#
 def use_db(func):
@@ -30,8 +30,11 @@ def new_pid(arguments):
 @use_db
 def API_create_post(arguments):
     pid = (new_pid({}),)
-    arguments['c'].execute("INSERT INTO posts (pid, title, body, img) VALUES (%s, %s, %s, %s)",
-    pid + tuple( dict(arguments['data']).values() ))
+    ex_data = (datetime.datetime.now(),)
+    arguments['c'].execute (
+        "INSERT INTO posts (pid, title, body, img, author, curtime)\
+        VALUES (%s,%s,%s,%s,%s,%s)", pid + tuple( dict(arguments['data']).values() ) + ex_data
+    )
     arguments['conn'].commit()
     return {"code": "success!"}
 

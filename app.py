@@ -39,6 +39,7 @@ def create_post():
         if len(data) != 3:
             if not data.get('body'): data['body'] = None
             if not data.get('img'): data['img'] = None
+        data['author'] = 'Anonymous'
         API_create_post(data)['code']
         return '<p>Post created!</p>'
 
