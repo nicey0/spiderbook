@@ -14,11 +14,15 @@ INSERT INTO post_ids VALUES (1);
 
 /*Users****************************/
 CREATE TABLE users (
-    user_id TEXT NOT NULL,
+    user_id TEXT NOT NULL UNIQUE,
     username VARCHAR(30) NOT NULL,
     email VARCHAR(100) NOT NULL,
     pass VARCHAR(60) NOT NULL,
     bio VARCHAR(500),
     pfp_url VARCHAR(500),
     join_date DATE NOT NULL
+);
+
+CREATE TABLE admins (
+    admin_id TEXT NOT NULL UNIQUE REFERENCES users(user_id)
 );
