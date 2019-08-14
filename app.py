@@ -1,5 +1,5 @@
 #-Imports--------------------------------------------------#
-import os
+import os, time
 
 from flask import Flask, request, redirect, make_response, render_template, url_for
 from flask_script import Manager
@@ -10,6 +10,12 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ['SECRET']
 
 #-View-Functions-------------------------------------------#
+'''
+Notes:
+Get form data: request.form
+Get URI arguments: request.args.get('ARGUMENT_NAME')
+Get POST body JSON: request.data
+'''
 @app.route('/')
 def index():
     return "<p>Index</p>"
@@ -19,15 +25,22 @@ def register():
     # request.form
     return "<p>Register Page</p>"
 
-@app.route('/post/create')
+@app.route('/post/create', methods=['GET', 'POST'])
 def create_post():
-    data = {
+    """ data = {
         "title": "Post",
         "body": "Hello, world!",
         "img": None
-    }
-    print(API_create_post(data)['code'])
-    return '<p>Post created!</p>'
+    } """
+    if request.method == 'GET':
+        return render_template('create_post.html')
+    elif request.method == 'POST':
+        data = dict(request.form)
+        if len(data) != 3:
+            if not data.get('body'): data['body'] = None
+            if not data.get('img'): data['img'] = None
+        API_create_post(data)['code']
+        return '<p>Post created!</p>'
 
 #-Running-the-server---------------------------------------#
 if __name__ == '__main__':
