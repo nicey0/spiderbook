@@ -38,9 +38,9 @@ def create_post():
         image.save(imageURL)
 
         if not data.get('body'): data['body'] = None
-        if not image: data['img'] = None
+        if not image: data['img_url'] = None
 
-        data['img'] = imageURL
+        data['img_url'] = imageURL
         data['author'] = 'Anon'
 
         code = API_create_post(data)['code']

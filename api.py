@@ -31,15 +31,23 @@ def new_pid(arguments):
 def API_create_post(arguments):
     try:
         pid = (new_pid({}),)
-        ex_data = (datetime.datetime.now(),)
+        post_data = (
+            arguments['data']['title'],
+            arguments['data']['body'],
+            arguments['data']['img_url'],
+            arguments['data']['author']
+        )
+        date = (datetime.datetime.now(),)
+
         arguments['c'].execute (
-        "INSERT INTO posts (pid, title, body, img, author, curtime) VALUES (%s,%s,%s,%s,%s,%s)",
-            pid + tuple(dict(arguments['data']).values()) + ex_data)
+        "INSERT INTO posts (pid, title, body, img_url, author, curtime) VALUES (%s,%s,%s,%s,%s,%s)",
+            pid + post_data + date)
+
         arguments['conn'].commit()
         return {"code": "success!"}
+
     except Exception as e:
         return {"code": str(e)}
-
 
 @use_db
 def API_get_posts(arguments):
